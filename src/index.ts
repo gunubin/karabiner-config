@@ -24,6 +24,7 @@ const jetJrainsApp = ['^com.jetbrains.[\\w-]+$', '^com.googlecode.iterm2$']
 function main() {
   writeToProfile('Default', [
       ruleBasic(),
+      ruleApp(),
       ruleOptionSymbol(),
       ruleBuildInKeyboard(),
       ruleNotBuildInKeyboard(),
@@ -41,8 +42,27 @@ function main() {
 
 const ruleBasic = () => {
   return rule('Control').manipulators([
-    map('c', '⌃').to('escape').to('japanese_eisuu').toVar(vimVisualMode).toVar(vimLayerKey, 0).toRemoveNotificationMessage(vimNoticeKey),
+    withCondition(ifApp(['^com.googlecode.iterm2$']).unless())([
+      map('c', '⌃').to('escape').to('japanese_eisuu').toVar(vimVisualMode).toVar(vimLayerKey, 0).toRemoveNotificationMessage(vimNoticeKey),
+    ]),
     map('q', '⌘').toIfHeldDown('q', '⌘', {repeat: false})
+  ])
+}
+
+const ruleApp = () => {
+  return rule('Control').manipulators([
+    withCondition(ifApp(['^com\\.google\\.Chrome$', '^org\\.mozilla\\.firefox$']))([
+      map('j', '⌘').to('tab', '⌃'),
+      map('k', '⌘').to('tab', ['⌃', '⇧']),
+    ]),
+    withCondition(ifApp(['^com\\.apple\\.finder$', '^com\\.cocoatech\\.PathFinder$']))([
+      map('j', '⌘').to('close_bracket', ['⌘', '⇧']),
+      map('k', '⌘').to('open_bracket', ['⌘', '⇧']),
+      map('n', '⌃').to('down_arrow'),
+      map('p', '⌃').to('up_arrow'),
+      map('b', '⌃').to('left_arrow'),
+      map('f', '⌃').to('right_arrow'),
+    ])
   ])
 }
 
@@ -147,8 +167,10 @@ const ruleVimForJapanese = () => {
       map('a').to('→').toVar(vimLayerKey, 0).toRemoveNotificationMessage(vimNoticeKey),
       map('i').toVar(vimLayerKey, 0).toRemoveNotificationMessage(vimNoticeKey),
       map('o').to('e', 'left_control').to('return_or_enter').toVar(vimLayerKey, 0).toRemoveNotificationMessage(vimNoticeKey),
+      map('o', '⇧').to('a', 'left_control').to('return_or_enter').to('↑').toVar(vimLayerKey, 0).toRemoveNotificationMessage(vimNoticeKey),
       map('u').to('z', '⌘'),
       map('x').toVar(vimVisualMode, 0).to('⌦'),
+      map('x', '⇧').toVar(vimVisualMode, 0).to('⌫'),
       map('p').to('v', '⌘').toVar(vimVisualMode, 0),
       map('d', '⇧').to('e', '⌃⇧').to('c', 'left_command').to('delete_or_backspace').toVar(vimVisualMode, 0),
       map("r", '⌃').to("z", ['⇧', '⌘']),
@@ -165,7 +187,7 @@ const ruleVimForJapanese = () => {
         map("b").to('left_arrow', ['⌥']),
         mapDoubleTap('v', 150).toVar(vimVisualMode, 1).to('a', '⌃').to('e', '⌃⇧').singleTap(toSetVar(vimVisualMode, 1)),
         mapDoubleTap('y').to('a', '⌃').to('e', '⌃⇧').to('c', '⌘'),
-        mapDoubleTap('d').to('a', '⌃').to('e', '⌃⇧').to('c', 'left_command').to('delete_or_backspace').toVar(vimVisualMode, 0),
+        mapDoubleTap('d').to('a', '⌃').to('e', '⌃⇧').to('c', 'left_command').to('delete_or_backspace').to('delete_or_backspace').toVar(vimVisualMode, 0),
       ]),
       withCondition(ifVar(vimVisualMode, 1))([
         mapSimultaneous(['k', 'j']).toVar(vimVisualMode, 0).to('←'),
