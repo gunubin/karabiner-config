@@ -12,6 +12,7 @@ import {
   withCondition,
   writeToProfile,
 } from 'karabiner.ts'
+import {toSymbol} from "./utils";
 
 // modskey '⌘' | '⌥' | '⌃' | '⇧'
 
@@ -53,8 +54,8 @@ const ruleBuildInKeyboard = () => {
       map('semicolon').to('left_control').toIfAlone('return_or_enter'),
       map('spacebar').to('left_option').toIfAlone('spacebar'),
       map('right_command').to('right_option').toIfAlone('delete_or_backspace'),
-      mapDoubleTap(',').toTypeSequence(':'),
-      mapDoubleTap('/').toTypeSequence('-'),
+      mapDoubleTap(',').to(toSymbol[':']),
+      mapDoubleTap('/').to(toSymbol['-']),
     ]);
 }
 
@@ -78,37 +79,37 @@ const ruleNotBuildInKeyboard = () => {
 
 const ruleOptionSymbol = () => {
   return rule("option").manipulators([
-    map('q', '⌥').toTypeSequence('!'),
-    map('w', '⌥').toTypeSequence('@'),
-    map('e', '⌥').toTypeSequence('#'),
-    map('r', '⌥').toTypeSequence('$'),
-    map('t', '⌥').toTypeSequence('%'),
-    map('y', '⌥').toTypeSequence('^'),
-    map('u', '⌥').toTypeSequence('&'),
-    map('i', '⌥').toTypeSequence('*'),
-    map('o', '⌥').toTypeSequence('`'),
-    map('p', '⌥').toTypeSequence('~'),
+    map('q', '⌥').to(toSymbol['!']),
+    map('w', '⌥').to(toSymbol['@']),
+    map('e', '⌥').to(toSymbol['#']),
+    map('r', '⌥').to(toSymbol['$']),
+    map('t', '⌥').to(toSymbol['%']),
+    map('y', '⌥').to(toSymbol['^']),
+    map('u', '⌥').to(toSymbol['&']),
+    map('i', '⌥').to(toSymbol['*']),
+    map('o', '⌥').to(toSymbol['`']),
+    map('p', '⌥').to(toSymbol['~']),
 
-    map('a', '⌥').toTypeSequence('+'),
-    mapDoubleTap('s', '⌥').toTypeSequence('<').singleTap(toKey('9', ['left_shift'])),
-    mapDoubleTap('d', '⌥').toTypeSequence('>').singleTap(toKey('0', ['left_shift'])),
-    map('f', '⌥').toTypeSequence('='),
-    map('g', '⌥').toTypeSequence(':'),
+    map('a', '⌥').to(toSymbol['+']),
+    mapDoubleTap('s', '⌥').to(toSymbol['<']).singleTap(toKey('9', ['left_shift'])),
+    mapDoubleTap('d', '⌥').to(toSymbol['>']).singleTap(toKey('0', ['left_shift'])),
+    map('f', '⌥').to(toSymbol['=']),
+    map('g', '⌥').to(toSymbol[':']),
     map('h', '⌥').to('←'),
     map('j', '⌥').to('↓'),
     map('k', '⌥').to('↑'),
     map('l', '⌥').to('→'),
 
-    map('z', '⌥').toTypeSequence('|'),
-    mapDoubleTap('x', '⌥').toTypeSequence('[').singleTap(toKey('open_bracket', ['left_shift'])),
-    mapDoubleTap('c', '⌥').toTypeSequence(']').singleTap(toKey('close_bracket', ['left_shift'])),
-    map('v', '⌥').toTypeSequence('\''),
-    map('b', '⌥').toTypeSequence('\"'),
-    map('n', '⌥').toTypeSequence('\\'),
-    map('m', '⌥').toTypeSequence('_'),
-    map(',', '⌥').toTypeSequence('['),
-    map('.', '⌥').toTypeSequence(']'),
-    map('/', '⌥').toTypeSequence('-'),
+    map('z', '⌥').to(toSymbol['|']),
+    mapDoubleTap('x', '⌥').to(toSymbol['[']).singleTap(toKey('open_bracket', ['left_shift'])),
+    mapDoubleTap('c', '⌥').to(toSymbol[']']).singleTap(toKey('close_bracket', ['left_shift'])),
+    map('v', '⌥').to(toSymbol['\'']),
+    map('b', '⌥').to(toSymbol['\"']),
+    map('n', '⌥').to(toSymbol['\\']),
+    map('m', '⌥').to(toSymbol['_']),
+    map(',', '⌥').to(toSymbol['[']),
+    map('.', '⌥').to(toSymbol[']']),
+    map('/', '⌥').to(toSymbol['-']),
   ])
 }
 
