@@ -27,6 +27,9 @@ export const toSymbol = {
   ':': toKey(';', '⇧'),
   '?': toKey('/', '⇧'),
 
+  '\\': toKey('\\'),
+  '|': toKey('\\', '⇧'),
+
   ',': toKey(','),
   '.': toKey('.'),
   '<': toKey(',', '⇧'),
