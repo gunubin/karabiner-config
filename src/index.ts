@@ -1,7 +1,8 @@
 import {
   duoLayer,
   ifApp,
-  ifDevice, ifInputSource,
+  ifDevice,
+  ifInputSource,
   ifVar,
   map,
   mapDoubleTap,
@@ -15,11 +16,12 @@ import {
 
 // modskey '⌘' | '⌥' | '⌃' | '⇧'
 
-const vimLayerKey = 'duo-layer-vim';
-const vimVisualMode = 'VisualModeForVim';
-const vimNoticeKey = `duo-layer-${vimLayerKey}`;
+const prefixDomLayer = 'duo-layer-';
+const vimLayerKey = 'vimLayerKey';
+const vimVisualMode = 'VimLayerVisualMode';
+const vimNoticeKey = `${prefixDomLayer}${vimLayerKey}`;
 
-const jetJrainsApp = ['^com.jetbrains.[\\w-]+$', '^com.googlecode.iterm2$']
+const ignoreVimEmulation = ['^com.jetbrains.[\\w-]+$', '^com.googlecode.iterm2$']
 
 function main() {
   writeToProfile('Default', [
@@ -35,22 +37,26 @@ function main() {
     {
       'basic.simultaneous_threshold_milliseconds': 150,
       'duo_layer.threshold_milliseconds': 150,
-      'duo_layer.notification': true,
+      // 'duo_layer.notification': true,
     },
   )
 }
 
 const ruleBasic = () => {
-  return rule('Control').manipulators([
+  return rule('Basic').manipulators([
     withCondition(ifApp(['^com.googlecode.iterm2$']).unless())([
-      map('c', '⌃').to('escape').to('japanese_eisuu').toVar(vimVisualMode).toVar(vimLayerKey, 0).toRemoveNotificationMessage(vimNoticeKey),
+      map('c', '⌃').to('escape').to('japanese_eisuu')
+        // TODO: fix this
+        .toVar(vimVisualMode).toVar(vimLayerKey, 0).toRemoveNotificationMessage(vimNoticeKey),
     ]),
-    map('q', '⌘').toIfHeldDown('q', '⌘', {repeat: false})
+    map('q', '⌘').toIfHeldDown('q', '⌘', {repeat: false}),
+    map('h', '⌘').toIfHeldDown('h', '⌘', {repeat: false}),
+    map('m', '⌘').toIfHeldDown('m', '⌘', {repeat: false}),
   ])
 }
 
 const ruleApp = () => {
-  return rule('Control').manipulators([
+  return rule('app').manipulators([
     withCondition(ifApp(['^com\\.google\\.Chrome$', '^org\\.mozilla\\.firefox$']))([
       map('j', '⌘').to('tab', '⌃'),
       map('k', '⌘').to('tab', ['⌃', '⇧']),
@@ -67,7 +73,7 @@ const ruleApp = () => {
 }
 
 const ruleBuildInKeyboard = () => {
-  return rule("build_in")
+  return rule("buildIn")
     .condition(
       ifDevice({is_built_in_keyboard: true}))
     .manipulators([
@@ -80,7 +86,7 @@ const ruleBuildInKeyboard = () => {
 }
 
 const ruleNotBuildInKeyboard = () => {
-  return rule("build_in")
+  return rule("notBuildIn")
     .condition(
       ifDevice({is_built_in_keyboard: false}))
     .manipulators([
@@ -98,7 +104,7 @@ const ruleNotBuildInKeyboard = () => {
 }
 
 const ruleOptionSymbol = () => {
-  return rule("option").manipulators([
+  return rule("optionSymbol").manipulators([
     map('q', '⌥').toTypeSequence('!'),
     map('w', '⌥').toTypeSequence('@'),
     map('e', '⌥').toTypeSequence('#'),
@@ -134,15 +140,15 @@ const ruleOptionSymbol = () => {
 }
 
 const ruleIme = () => {
-  return rule('IME').manipulators([
+  return rule('Ime').manipulators([
     map('f16').to('japanese_kana').toVar(vimVisualMode).toVar(vimLayerKey, 0).toRemoveNotificationMessage(vimNoticeKey), // for QMK
     map('escape').to('japanese_eisuu').toVar(vimVisualMode).toVar(vimLayerKey, 0).toRemoveNotificationMessage(vimNoticeKey), // for QMK
     withCondition(ifInputSource({language: 'ja'}))([
       map('slash').to('hyphen'),
       map('return_or_enter', '⌃').to('semicolon', '⌃'),
       // for alfred
-      map('delete_or_backspace', ['⌥','⌘']).to('japanese_eisuu')
-  ])
+      map('delete_or_backspace', ['⌥', '⌘']).to('japanese_eisuu')
+    ])
     // for QMK
     // mapSimultaneous(['k', 'j']).to('japanese_eisuu').to('escape'),
     // mapSimultaneous(['j', 'k']).to('japanese_eisuu').to('escape'),
@@ -151,18 +157,19 @@ const ruleIme = () => {
 
 const ruleImeForJetBrains = () => {
   return duoLayer('j', 'k').threshold(100)
+    .condition(ifApp(ignoreVimEmulation))
     .toIfActivated(toKey("japanese_eisuu"))
     .toIfActivated(toKey("open_bracket", 'left_control'))
-    .condition(ifApp(jetJrainsApp))
 }
 
 const ruleVimForJapanese = () => {
-  return duoLayer('j', 'k', vimLayerKey).threshold(100)
+  return duoLayer('j', 'k', vimLayerKey)
+    .condition(ifApp(ignoreVimEmulation).unless())
     .toIfActivated(toKey("japanese_eisuu"))
     .toIfActivated(toSetVar(vimVisualMode, 0))
-    .condition(ifApp(jetJrainsApp).unless())
+    .threshold(100)
     .leaderMode({sticky: true})
-    .notification('Normal Mode')
+    .notification('Normal Mode (Vim Emulation)')
     .manipulators([
       map('a').to('→').toVar(vimLayerKey, 0).toRemoveNotificationMessage(vimNoticeKey),
       map('i').toVar(vimLayerKey, 0).toRemoveNotificationMessage(vimNoticeKey),
@@ -187,7 +194,7 @@ const ruleVimForJapanese = () => {
         map("b").to('left_arrow', ['⌥']),
         mapDoubleTap('v', 150).toVar(vimVisualMode, 1).to('a', '⌃').to('e', '⌃⇧').singleTap(toSetVar(vimVisualMode, 1)),
         mapDoubleTap('y').to('a', '⌃').to('e', '⌃⇧').to('c', '⌘'),
-        mapDoubleTap('d').to('a', '⌃').to('e', '⌃⇧').to('c', 'left_command').to('delete_or_backspace').to('delete_or_backspace').toVar(vimVisualMode, 0),
+        mapDoubleTap('d').to('a', '⌃').to('e', '⌃⇧').to('c', 'left_command').to('delete_or_backspace').toVar(vimVisualMode, 0),
       ]),
       withCondition(ifVar(vimVisualMode, 1))([
         mapSimultaneous(['k', 'j']).toVar(vimVisualMode, 0).to('←'),
@@ -203,6 +210,5 @@ const ruleVimForJapanese = () => {
       ]),
     ])
 }
-
 
 main();
