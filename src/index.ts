@@ -51,16 +51,28 @@ const ruleBasic = () => {
         .toVar(vimVisualMode).toVar(vimLayerKey, 0).toRemoveNotificationMessage(vimNoticeKey),
     ]),
     map('q', '⌘').toIfHeldDown('q', '⌘', {repeat: false}),
-    map('h', '⌘').toIfHeldDown('h', '⌘', {repeat: false}),
     map('m', '⌘').toIfHeldDown('m', '⌘', {repeat: false}),
+    map('h', '⌘').to('←'),
+    map('j', '⌘').to('↓'),
+    map('k', '⌘').to('↑'),
+    map('l', '⌘').to('→'),
+    map('h', ['⇧','⌘']).to('a', '⌃'),
+    map('l', ['⇧','⌘']).to('e', '⌃'),
+    map('/', '⌘').to('l', '⌘'),
+    map(',', ['⌘', '⇧']).to(',', '⌘'),
   ])
 }
 
 const ruleApp = () => {
   return rule('app').manipulators([
+    withCondition(ifApp(['^com.jetbrains.[\\w-]+$']))([
+      map('.', '⌘').to(']', ['⌘', '⇧']),
+      map(',', '⌘').to('[', ['⌘', '⇧']),
+      map(',', ['⌘', '⇧']).to(',', '⌘'),
+    ]),
     withCondition(ifApp(['^com\\.google\\.Chrome$', '^org\\.mozilla\\.firefox$']))([
-      map('j', '⌘').to('tab', '⌃'),
-      map('k', '⌘').to('tab', ['⌃', '⇧']),
+      map('.', '⌘').to('tab', '⌃'),
+      map(',', '⌘').to('tab', ['⌃', '⇧']),
     ]),
     withCondition(ifApp(['^com\\.apple\\.finder$', '^com\\.cocoatech\\.PathFinder$']))([
       map('j', '⌘').to('close_bracket', ['⌘', '⇧']),
